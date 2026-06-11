@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Service
 @RequiredArgsConstructor
 public class AccountService {
@@ -33,17 +34,14 @@ public class AccountService {
     public List<AccountOutDTO> getAllAccounts() {
         List<Account> allAccounts = accountRepository.findAll();
         List<AccountOutDTO> dtoList = new ArrayList<>();
-
         for (int i = 0; i < allAccounts.size(); i++) {
-            Account account = allAccounts.get(i);
-            AccountOutDTO dto = convertToOutDTO(account);
-            dtoList.add(dto);
+            dtoList.add(convertToOutDTO(allAccounts.get(i)));
         }
         return dtoList;
     }
 
-    public void createAccount(Integer userId, Account account) {
-        User user = authRepository.findMyUserById(userId);
+    public void createAccount(Integer authUserId, Account account) {
+        User user = authRepository.findMyUserById(authUserId);
         if (user == null || user.getCustomer() == null) {
             throw new ApiException("Customer profile not found");
         }
@@ -54,18 +52,12 @@ public class AccountService {
 
     public void activateAccount(Integer authUserId, Integer accountId) {
         User user = authRepository.findMyUserById(authUserId);
-        if (user == null) {
-            throw new ApiException("User not found");
-        }
-
-        if (!user.getRole().equals("EMPLOYEE") && !user.getRole().equals("ADMIN")) {
+        if (user == null || (!user.getRole().equals("EMPLOYEE") && !user.getRole().equals("ADMIN"))) {
             throw new ApiException("sorry , you dont have the authority to activate accounts");
         }
 
         Account account = accountRepository.findAccountById(accountId);
-        if (account == null) {
-            throw new ApiException("Account not found");
-        }
+        if (account == null) throw new ApiException("Account not found");
 
         account.setActive(true);
         accountRepository.save(account);
@@ -73,35 +65,19 @@ public class AccountService {
 
     public void blockAccount(Integer authUserId, Integer accountId) {
         User user = authRepository.findMyUserById(authUserId);
-        if (user == null) {
-            throw new ApiException("User not found");
-        }
-
-        if (!user.getRole().equals("EMPLOYEE") && !user.getRole().equals("ADMIN")) {
+        if (user == null || (!user.getRole().equals("EMPLOYEE") && !user.getRole().equals("ADMIN"))) {
             throw new ApiException("sorry , you dont have the authority to block accounts");
         }
 
         Account account = accountRepository.findAccountById(accountId);
-        if (account == null) {
-            throw new ApiException("Account not found");
-        }
+        if (account == null) throw new ApiException("Account not found");
 
         account.setActive(false);
         accountRepository.save(account);
     }
 
-    public AccountOutDTO getMyAccountDetails(Integer userId, Integer accountId) {
-        Account account = accountRepository.findAccountById(accountId);
-        if (account == null) throw new ApiException("Account not found");
-
-        if (!account.getCustomer().getUser().getId().equals(userId)) {
-            throw new ApiException("sorry , you dont have the authority to view this account");
-        }
-        return convertToOutDTO(account);
-    }
-
-    public List<AccountOutDTO> getMyAccounts(Integer userId) {
-        User user = authRepository.findMyUserById(userId);
+    public List<AccountOutDTO> getMyAccounts(Integer authUserId) {
+        User user = authRepository.findMyUserById(authUserId);
         if (user == null || user.getCustomer() == null) {
             throw new ApiException("Customer not found");
         }
@@ -112,18 +88,17 @@ public class AccountService {
         for (int i = 0; i < allAccounts.size(); i++) {
             Account acc = allAccounts.get(i);
             if (acc.getCustomer().getId().equals(user.getCustomer().getId())) {
-                AccountOutDTO dto = convertToOutDTO(acc);
-                myDtoAccounts.add(dto);
+                myDtoAccounts.add(convertToOutDTO(acc));
             }
         }
         return myDtoAccounts;
     }
 
-    public void deposit(Integer userId, Integer accountId, Double amount) {
+    public void deposit(Integer authUserId, Integer accountId, Double amount) {
         Account account = accountRepository.findAccountById(accountId);
         if (account == null) throw new ApiException("Account not found");
 
-        if (!account.getCustomer().getUser().getId().equals(userId)) {
+        if (!account.getCustomer().getUser().getId().equals(authUserId)) {
             throw new ApiException("sorry , you dont have the authority to deposit into this account");
         }
         if (!account.isActive()) throw new ApiException("Account is not active");
@@ -132,11 +107,11 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public void withdraw(Integer userId, Integer accountId, Double amount) {
+    public void withdraw(Integer authUserId, Integer accountId, Double amount) {
         Account account = accountRepository.findAccountById(accountId);
         if (account == null) throw new ApiException("Account not found");
 
-        if (!account.getCustomer().getUser().getId().equals(userId)) {
+        if (!account.getCustomer().getUser().getId().equals(authUserId)) {
             throw new ApiException("sorry , you dont have the authority to withdraw from this account");
         }
         if (!account.isActive()) throw new ApiException("Account is not active");
@@ -146,14 +121,14 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    public void transfer(Integer userId, Integer fromAccountId, String toAccountNumber, Double amount) {
+    public void transfer(Integer authUserId, Integer fromAccountId, String toAccountNumber, Double amount) {
         Account fromAccount = accountRepository.findAccountById(fromAccountId);
         Account toAccount = accountRepository.findAccountByAccountNumber(toAccountNumber);
 
         if (fromAccount == null) throw new ApiException("Source account not found");
         if (toAccount == null) throw new ApiException("Destination account not found");
 
-        if (!fromAccount.getCustomer().getUser().getId().equals(userId)) {
+        if (!fromAccount.getCustomer().getUser().getId().equals(authUserId)) {
             throw new ApiException("sorry , you dont have the authority to transfer from this account");
         }
         if (!fromAccount.isActive() || !toAccount.isActive()) {

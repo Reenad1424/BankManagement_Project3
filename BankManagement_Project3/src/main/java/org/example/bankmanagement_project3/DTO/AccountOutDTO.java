@@ -11,5 +11,5 @@ public class AccountOutDTO {
     private String accountNumber;
     private Double balance;
     private boolean isActive;
-    private String customerName; // يُرجع اسم العميل فقط بشكل بسيط جداً
+    private String customerName;
 }

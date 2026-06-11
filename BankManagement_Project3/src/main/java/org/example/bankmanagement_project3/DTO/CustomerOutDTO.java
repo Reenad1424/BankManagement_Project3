@@ -14,5 +14,5 @@ public class CustomerOutDTO {
     private String email;
     private String role;
     private String phoneNumber;
-    private List<AccountOutDTO> accounts; // نعرض قائمة الحسابات هنا باستخدام الـ OutDTO لمنع اللوب اللانهائي
+    private List<AccountOutDTO> accounts;
 }

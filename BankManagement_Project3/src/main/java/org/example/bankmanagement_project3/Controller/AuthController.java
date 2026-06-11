@@ -2,10 +2,9 @@ package org.example.bankmanagement_project3.Controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.example.bankmanagement_project3.Api.ApiResponse;
-import org.example.bankmanagement_project3.DTO.CustomerRegisterDTO;
-import org.example.bankmanagement_project3.DTO.EmployeeRegisterDTO;
+import org.example.bankmanagement_project3.DTO.CustomerRegisterInDTO;
+import org.example.bankmanagement_project3.DTO.EmployeeRegisterInDTO;
 import org.example.bankmanagement_project3.Service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +18,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register-customer")
-    public ResponseEntity<ApiResponse> registerCustomer(@RequestBody @Valid CustomerRegisterDTO dto){
+    public ResponseEntity<ApiResponse> registerCustomer(@RequestBody @Valid CustomerRegisterInDTO dto){
         authService.registerCustomer(dto);
         return ResponseEntity.status(201).body(new ApiResponse("Customer registered successfully"));
     }
 
     @PostMapping("/register-employee")
-    public ResponseEntity<ApiResponse> registerEmployee(@RequestBody @Valid EmployeeRegisterDTO dto){
+    public ResponseEntity<ApiResponse> registerEmployee(@RequestBody @Valid EmployeeRegisterInDTO dto){
         authService.registerEmployee(dto);
         return ResponseEntity.status(201).body(new ApiResponse("Employee registered successfully"));
     }

@@ -1,7 +1,6 @@
 package org.example.bankmanagement_project3.Service;
 
 import lombok.RequiredArgsConstructor;
-
 import org.example.bankmanagement_project3.DTO.*;
 import org.example.bankmanagement_project3.Model.Account;
 import org.example.bankmanagement_project3.Model.Customer;
@@ -20,7 +19,7 @@ public class AuthService {
 
     private final AuthRepository authRepository;
 
-    public void registerCustomer(CustomerRegisterDTO dto) {
+    public void registerCustomer(CustomerRegisterInDTO dto) {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setName(dto.getName());
@@ -38,7 +37,7 @@ public class AuthService {
         authRepository.save(user);
     }
 
-    public void registerEmployee(EmployeeRegisterDTO dto) {
+    public void registerEmployee(EmployeeRegisterInDTO dto) {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setName(dto.getName());
@@ -66,42 +65,15 @@ public class AuthService {
 
             if ("CUSTOMER".equals(u.getRole()) && u.getCustomer() != null) {
                 List<AccountOutDTO> accDtos = new ArrayList<>();
-
                 if (u.getCustomer().getAccounts() != null) {
                     for (Account acc : u.getCustomer().getAccounts()) {
-                        AccountOutDTO accDto = new AccountOutDTO(
-                                acc.getId(),
-                                acc.getAccountNumber(),
-                                acc.getBalance(),
-                                acc.isActive(),
-                                u.getName()
-                        );
-                        accDtos.add(accDto);
+                        accDtos.add(new AccountOutDTO(acc.getId(), acc.getAccountNumber(), acc.getBalance(), acc.isActive(), u.getName()));
                     }
                 }
-
-                CustomerOutDTO customerDto = new CustomerOutDTO(
-                        u.getId(),
-                        u.getUsername(),
-                        u.getName(),
-                        u.getEmail(),
-                        u.getRole(),
-                        u.getCustomer().getPhoneNumber(),
-                        accDtos
-                );
-                dtos.add(customerDto);
+                dtos.add(new CustomerOutDTO(u.getId(), u.getUsername(), u.getName(), u.getEmail(), u.getRole(), u.getCustomer().getPhoneNumber(), accDtos));
 
             } else if ("EMPLOYEE".equals(u.getRole()) && u.getEmployee() != null) {
-                EmployeeOutDTO employeeDto = new EmployeeOutDTO(
-                        u.getId(),
-                        u.getUsername(),
-                        u.getName(),
-                        u.getEmail(),
-                        u.getRole(),
-                        u.getEmployee().getPosition(),
-                        u.getEmployee().getSalary()
-                );
-                dtos.add(employeeDto);
+                dtos.add(new EmployeeOutDTO(u.getId(), u.getUsername(), u.getName(), u.getEmail(), u.getRole(), u.getEmployee().getPosition(), u.getEmployee().getSalary()));
             } else {
                 dtos.add(u);
             }

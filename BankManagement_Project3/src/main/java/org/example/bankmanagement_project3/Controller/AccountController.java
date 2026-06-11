@@ -2,7 +2,6 @@ package org.example.bankmanagement_project3.Controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.example.bankmanagement_project3.Api.ApiResponse;
 import org.example.bankmanagement_project3.DTO.AccountOutDTO;
 import org.example.bankmanagement_project3.Model.Account;
@@ -31,21 +30,16 @@ public class AccountController {
         return ResponseEntity.status(201).body(new ApiResponse("Account created successfully, awaiting activation"));
     }
 
-    @PutMapping("/activate/{id}")
-    public ResponseEntity<ApiResponse> activateAccount(@AuthenticationPrincipal User user, @PathVariable Integer id) {
-        accountService.activateAccount(user.getId(), id);
+    @PutMapping("/activate/{accountId}")
+    public ResponseEntity<ApiResponse> activateAccount(@AuthenticationPrincipal User user, @PathVariable Integer accountId) {
+        accountService.activateAccount(user.getId(), accountId);
         return ResponseEntity.status(200).body(new ApiResponse("Account activated successfully"));
     }
 
-    @PutMapping("/block/{id}")
-    public ResponseEntity<ApiResponse> blockAccount(@AuthenticationPrincipal User user, @PathVariable Integer id) {
-        accountService.blockAccount(user.getId(), id);
+    @PutMapping("/block/{accountId}")
+    public ResponseEntity<ApiResponse> blockAccount(@AuthenticationPrincipal User user, @PathVariable Integer accountId) {
+        accountService.blockAccount(user.getId(), accountId);
         return ResponseEntity.status(200).body(new ApiResponse("Account blocked successfully"));
-    }
-
-    @GetMapping("/view-my-account/{id}")
-    public ResponseEntity<AccountOutDTO> getMyAccountDetails(@AuthenticationPrincipal User user, @PathVariable Integer id) {
-        return ResponseEntity.status(200).body(accountService.getMyAccountDetails(user.getId(), id));
     }
 
     @GetMapping("/my-accounts")
